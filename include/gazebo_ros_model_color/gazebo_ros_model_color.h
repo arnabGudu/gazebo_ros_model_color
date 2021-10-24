@@ -43,6 +43,9 @@
 #include <ros/callback_queue.h>
 #include <ros/advertise_options.h>
 
+#include <dynamic_reconfigure/server.h>
+#include <gazebo_ros_model_color/ModelColorConfig.h>
+
 namespace gazebo {
     class ModelVisualPlugin : public VisualPlugin {
         // Constructor
@@ -71,6 +74,11 @@ namespace gazebo {
         // Callback when using service
         private:  bool ServiceCallback(gazebo_msgs::SetLightProperties::Request &req,
                                         gazebo_msgs::SetLightProperties::Response &res);
+
+        // Dynamic Reconfigure callback
+        private: dynamic_reconfigure::Server<gazebo_ros_model_color::ModelColorConfig> server;
+        private: dynamic_reconfigure::Server<gazebo_ros_model_color::ModelColorConfig>::CallbackType callbackType;
+        private: void DynCallback(gazebo_ros_model_color::ModelColorConfig &config, uint32_t level);
     };
 }
 #endif

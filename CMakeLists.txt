@@ -10,12 +10,17 @@ project(gazebo_ros_model_color)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   gazebo_ros
+  dynamic_reconfigure
 )
 
 # Depend on system install of Gazebo
 find_package(gazebo REQUIRED)
 
 find_package(Boost REQUIRED COMPONENTS thread)
+
+generate_dynamic_reconfigure_options(
+  cfg/ModelColor.cfg
+)
 
 link_directories(${Boost_LIBRARY_DIRS} ${GAZEBO_LIBRARY_DIRS})
 include_directories(include ${Boost_INCLUDE_DIR} ${catkin_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS})
@@ -144,7 +149,7 @@ target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES}  $
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
-# add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context

@@ -68,7 +68,7 @@ namespace gazebo {
             ros::init(argc, argv, "gazebo_client", ros::init_options::NoSigintHandler);
         }
 
-        std::string gazebo_source = (ros::this_node::getName() == "/gazebo_client") ? "gzclient" : "gzserver";        
+        std::string gazebo_source = (ros::this_node::getName() == "/gazebo_client") ? "gzclient" : "gzserver";
         //ROS_INFO(gazebo_source.c_str());
 
         this->rosnode_ = new ros::NodeHandle(this->robot_namespace_);
@@ -78,9 +78,12 @@ namespace gazebo {
             this->service_name_, boost::bind(&ModelVisualPlugin::ServiceCallback, this, _1, _2), ros::VoidPtr(), &this->model_queue_);
 
         this->srv_ = rosnode_->advertiseService(aso);
-    
+
         this->callback_queue_thread_ = boost::thread(boost::bind(&ModelVisualPlugin::VisualQueueThread, this));
-    
+
+        this->callbackType = boost::bind(&ModelVisualPlugin::DynCallback, this, _1, _2);
+        this->server.setCallback(this->callbackType);
+
         //ROS_INFO("\x1b[6;37;42mHello Simulated Colored World!\x1b[0m");
     }
 
@@ -91,7 +94,18 @@ namespace gazebo {
         this->model_->SetDiffuse(c);
         res.success = true;
         res.status_message = "Changing the color of the model";
-        return true;     
+        return true;
+    }
+
+    void ModelVisualPlugin::DynCallback(gazebo_ros_model_color::ModelColorConfig &config, uint32_t level) {
+        ignition::math::Color a(config.ambient_red, config.ambient_green, config.ambient_blue, config.ambient_alpha);
+        ignition::math::Color d(config.diffuse_red, config.diffuse_green, config.diffuse_blue, config.diffuse_alpha);
+        ignition::math::Color s(config.specular_red, config.specular_green, config.specular_blue, config.specular_alpha);
+        ignition::math::Color e(config.emissive_red, config.emissive_green, config.emissive_blue, config.emissive_alpha);
+        this->model_->SetAmbient(a);
+        this->model_->SetDiffuse(d);
+        this->model_->SetSpecular(s);
+        this->model_->SetEmissive(e);
     }
 
     void ModelVisualPlugin::VisualQueueThread(){
